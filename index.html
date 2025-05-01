@@ -5,185 +5,406 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>shortSudoku 5x5</title>
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --cell-bg: #2a2a2a;
+            --filled-cell-bg: #222222;
+            --selected-cell-bg: #4361ee;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --highlight-color: #4fc3f7;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            --transition: all 0.25s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            text-align: center;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
+        
         .game-container {
-            background-color: #2d2d2d;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
         }
+        
         h1 {
-            color: #e0e0e0;
+            color: var(--text-primary);
             margin-bottom: 10px;
             font-size: 2.2em;
+            text-align: center;
+            letter-spacing: 1px;
         }
+        
+        .daily-date {
+            font-size: 1.2em;
+            color: var(--highlight-color);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
         .sudoku-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 2px;
-            margin: 20px auto;
+            gap: 3px;
+            margin: 24px auto;
             max-width: 350px;
-            background-color: #555;
-            padding: 2px;
-            border-radius: 5px;
+            background-color: #444;
+            padding: 3px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+        
         .sudoku-cell {
             width: 60px;
             height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            background-color: #4a4a4a;
-            color: #f0f0f0;
-            border-radius: 3px;
+            background-color: var(--cell-bg);
+            color: var(--text-primary);
+            border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            user-select: none;
         }
+        
         .sudoku-cell.filled {
-            background-color: #222222;
-            color: #ffffff;
-            border: 1px solid #555555;
+            background-color: var(--filled-cell-bg);
+            color: var(--text-primary);
+            border: 1px solid #444;
         }
+        
         .sudoku-cell.highlighted {
-            background-color: #3d3d3d;
+            background-color: #333;
         }
+        
         .sudoku-cell.highlighted.filled {
-            background-color: #151515;
+            background-color: #1a1a1a;
         }
+        
         .sudoku-cell.selected {
-            background-color: #2196f3;
+            background-color: var(--selected-cell-bg);
             color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(67, 97, 238, 0.5);
         }
+        
         .sudoku-cell.correct {
-            background-color: #4caf50;
+            background-color: var(--success-color);
             color: white;
+            transform: scale(1.02);
         }
+        
         .sudoku-cell.incorrect {
-            background-color: #f44336;
+            background-color: var(--danger-color);
             color: white;
+            animation: shake 0.5s;
         }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { transform: translateX(3px); }
+        }
+        
         .sudoku-cell.user-input {
-            background-color: #3a3a3a;
+            background-color: #333;
             color: #ffeb3b;
-            border: 1px dashed #888888;
+            border: 1px dashed #888;
         }
+        
+        .sudoku-cell:not(.filled):hover {
+            background-color: #3a3a3a;
+            transform: scale(1.02);
+        }
+        
         .number-pad {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px auto;
+            gap: 12px;
+            margin: 24px auto;
             max-width: 350px;
         }
+        
         .number-btn {
-            padding: 10px 0;
-            background-color: #3d3d3d;
-            color: #f0f0f0;
+            padding: 12px 0;
+            background-color: #333;
+            color: var(--text-primary);
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1.5em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        
         .number-btn:hover {
-            background-color: #4a4a4a;
+            background-color: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
+        
+        .number-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
         button {
-            padding: 10px 15px;
-            background-color: #2196f3;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1em;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
         }
+        
         button:hover {
-            background-color: #0d8bf2;
+            filter: brightness(110%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
         .buttons {
-            margin: 20px 0;
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
         }
+        
         #message {
             margin: 20px 0;
             font-weight: bold;
             min-height: 24px;
+            text-align: center;
+            font-size: 1.1em;
+            padding: 10px;
+            border-radius: 8px;
+            transition: var(--transition);
         }
+        
         #message.correct {
-            color: #4caf50;
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
         }
+        
         #message.incorrect {
-            color: #f44336;
+            background-color: rgba(244, 67, 54, 0.2);
+            color: var(--danger-color);
         }
-        .score {
-            margin-top: 20px;
-            font-weight: bold;
-        }
+        
         .timer {
-            font-size: 1.2em;
+            font-size: 1.4em;
             margin-bottom: 15px;
-            color: #f44336;
+            color: var(--danger-color);
+            font-weight: bold;
+            text-align: center;
+            background-color: rgba(244, 67, 54, 0.1);
+            padding: 8px;
+            border-radius: 8px;
         }
+        
+        .score-display {
+            margin: 15px 0;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--highlight-color);
+            text-align: center;
+            background-color: rgba(79, 195, 247, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
         .game-over {
             display: none;
-            font-size: 1.5em;
-            color: #e0e0e0;
+            text-align: center;
+        }
+        
+        .game-over p {
+            font-size: 1.8em;
+            color: var(--text-primary);
             margin: 20px 0;
         }
+        
         .final-score {
-            font-size: 1.5em;
-            color: #4caf50;
+            font-size: 2em;
+            color: var(--success-color);
             margin: 20px 0;
         }
+        
         #start-game {
-            background-color: #4caf50;
+            background-color: var(--success-color);
             font-size: 1.2em;
             padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
         }
+        
         #start-game:hover {
-            background-color: #3d9a40;
+            background-color: #45a049;
         }
+        
         .game-play {
             display: none;
         }
+        
         .start-screen {
             padding: 20px;
+            text-align: center;
         }
+        
+        .start-screen p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
         .played-today {
             display: none;
             padding: 20px;
+            text-align: center;
         }
+        
+        .played-today p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
         .countdown {
-            font-size: 1.2em;
-            color: #f44336;
+            font-size: 1.3em;
+            color: var(--danger-color);
             margin: 20px 0;
+            background-color: rgba(244, 67, 54, 0.1);
+            padding: 10px;
+            border-radius: 8px;
         }
-        .daily-date {
-            font-size: 1.2em;
-            color: #4fc3f7;
-            margin-bottom: 20px;
-        }
-        .score-display {
-            margin: 15px 0;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #4fc3f7;
-        }
+        
         .instructions {
             margin: 20px 0;
             font-size: 1.1em;
             text-align: left;
-            padding: 0 20px;
+            padding: 15px 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .instructions p {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .share-score {
+            margin: 20px 0;
+        }
+        
+        .share-score a {
+            display: inline-block;
+            background-color: var(--success-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .share-score a:hover {
+            filter: brightness(110%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Add loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Media queries for better responsiveness */
+        @media (max-width: 450px) {
+            .sudoku-grid {
+                max-width: 300px;
+            }
+            
+            .sudoku-cell {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+            
+            .number-pad {
+                max-width: 300px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .sudoku-grid {
+                max-width: 250px;
+            }
+            
+            .sudoku-cell {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+            
+            .number-pad {
+                max-width: 250px;
+            }
         }
     </style>
 </head>
@@ -211,9 +432,9 @@
             <p>Already played today.</p>
             <div class="final-score">Score: <span id="today-score">0</span></div>
             <div class="countdown" id="countdown"></div>
-            <div class="share-score" style="margin: 20px 0;">
-                <a id="share-link-played" href="#" target="_blank" style="display: inline-block; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
-                    <span style="font-size: 1.1em;">Share</span>
+            <div class="share-score">
+                <a id="share-link-played" href="#" target="_blank">
+                    <span>Share</span>
                 </a>
             </div>
         </div>
@@ -221,7 +442,7 @@
         <div class="game-play" id="game-play">
             <div class="timer" id="timer">Time: 90s</div>
             
-            <div class="score-display" style="margin: 10px 0;">
+            <div class="score-display">
                 Score: <span id="score">0</span>
             </div>
             
@@ -237,8 +458,8 @@
                 <button class="number-btn" data-value="5" onclick="handleNumberInput(5)">5</button>
             </div>
             
-            <div class="buttons" style="margin-top: 15px;">
-                <button id="reset-btn" style="background-color: #ff9800;" onclick="resetPuzzle()">Reset Puzzle</button>
+            <div class="buttons">
+                <button id="reset-btn" style="background-color: var(--warning-color);" onclick="resetPuzzle()">Reset Puzzle</button>
             </div>
             
             <div id="message"></div>
@@ -247,9 +468,9 @@
         <div class="game-over" id="game-over">
             <p>Game Over</p>
             <div class="final-score" id="final-score-display"></div>
-            <div class="share-score" style="margin: 20px 0;">
-                <a id="share-link" href="#" target="_blank" style="display: inline-block; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
-                    <span style="font-size: 1.1em;">Share</span>
+            <div class="share-score">
+                <a id="share-link" href="#" target="_blank">
+                    <span>Share</span>
                 </a>
             </div>
             <div class="countdown" id="countdown-end"></div>
@@ -258,7 +479,7 @@
     
     <script>
         // Game settings
-        const GAME_TIME = 90; // Changed from 60 to 90 seconds
+        const GAME_TIME = 90; // 90 seconds game time
         const GRID_SIZE = 5;  // 5x5 grid
         const BOX_SIZE = Math.floor(Math.sqrt(GRID_SIZE));  // Calculate box size based on grid
         
@@ -552,11 +773,21 @@
                     sudokuGrid.appendChild(cell);
                 }
             }
+            
+            // Add transition effect
+            sudokuGrid.style.opacity = "0";
+            setTimeout(() => {
+                sudokuGrid.style.transition = "opacity 0.3s ease";
+                sudokuGrid.style.opacity = "1";
+            }, 50);
         }
         
         // Function to select a cell
         function selectCell(cell) {
             if (!gameActive) return;
+            
+            // Highlight related cells for better visibility
+            highlightRelatedCells(null); // Clear previous highlights
             
             // Remove selected class from previously selected cell
             if (selectedCell) {
@@ -566,6 +797,42 @@
             // Add selected class to the clicked cell
             cell.classList.add("selected");
             selectedCell = cell;
+            
+            // Highlight related cells
+            highlightRelatedCells(cell);
+        }
+        
+        // Function to highlight related cells (same row, column, box)
+        function highlightRelatedCells(cell) {
+            // Remove previous highlighting
+            const allCells = document.querySelectorAll(".sudoku-cell");
+            allCells.forEach(c => {
+                c.style.opacity = "1";
+            });
+            
+            if (!cell) return;
+            
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            const boxRow = Math.floor(row / BOX_SIZE) * BOX_SIZE;
+            const boxCol = Math.floor(col / BOX_SIZE) * BOX_SIZE;
+            
+            // Slightly dim cells that are not related
+            allCells.forEach(c => {
+                const cellRow = parseInt(c.dataset.row);
+                const cellCol = parseInt(c.dataset.col);
+                const inSameRow = cellRow === row;
+                const inSameCol = cellCol === col;
+                const inSameBox = 
+                    cellRow >= boxRow && 
+                    cellRow < boxRow + BOX_SIZE && 
+                    cellCol >= boxCol && 
+                    cellCol < boxCol + BOX_SIZE;
+                
+                if (!inSameRow && !inSameCol && !inSameBox && c !== cell) {
+                    c.style.opacity = "0.7";
+                }
+            });
         }
         
         // Function to get the next puzzle
@@ -574,38 +841,44 @@
                 currentPuzzleIndex = 0; // Wrap around if we've gone through all seeds
             }
             
-            const seed = dailySeeds[currentPuzzleIndex];
-            const { puzzle, solution: fullSolution } = generateSudokuGrid(seed);
-            
-            // Verify the puzzle has exactly 8 empty cells
-            let emptyCount = 0;
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    if (puzzle[row][col] === 0) {
-                        emptyCount++;
-                    }
-                }
-            }
-            
-            // If not exactly 8 empty cells, regenerate the puzzle
-            if (emptyCount !== 8) {
-                console.error("Puzzle has " + emptyCount + " empty cells instead of 8, regenerating...");
-                currentPuzzleIndex++; // Try next seed
-                return getNextPuzzle();
-            }
-            
-            currentGrid = puzzle;
-            solution = fullSolution;
-            
-            // Create Sudoku grid UI
-            createSudokuGrid(currentGrid);
-            
-            // Update UI
-            messageElement.textContent = "";
+            // Show loading indicator
+            messageElement.innerHTML = "Loading next puzzle <span class='loading'></span>";
             messageElement.className = "";
             
-            // Reset selected cell
-            selectedCell = null;
+            setTimeout(() => {
+                const seed = dailySeeds[currentPuzzleIndex];
+                const { puzzle, solution: fullSolution } = generateSudokuGrid(seed);
+                
+                // Verify the puzzle has exactly 8 empty cells
+                let emptyCount = 0;
+                for (let row = 0; row < GRID_SIZE; row++) {
+                    for (let col = 0; col < GRID_SIZE; col++) {
+                        if (puzzle[row][col] === 0) {
+                            emptyCount++;
+                        }
+                    }
+                }
+                
+                // If not exactly 8 empty cells, regenerate the puzzle
+                if (emptyCount !== 8) {
+                    console.error("Puzzle has " + emptyCount + " empty cells instead of 8, regenerating...");
+                    currentPuzzleIndex++; // Try next seed
+                    return getNextPuzzle();
+                }
+                
+                currentGrid = puzzle;
+                solution = fullSolution;
+                
+                // Create Sudoku grid UI
+                createSudokuGrid(currentGrid);
+                
+                // Update UI
+                messageElement.textContent = "";
+                messageElement.className = "";
+                
+                // Reset selected cell
+                selectedCell = null;
+            }, 100); // Small delay for better UX
         }
         
         // Function to handle number input
@@ -614,6 +887,12 @@
             
             const row = parseInt(selectedCell.dataset.row);
             const col = parseInt(selectedCell.dataset.col);
+            
+            // Add subtle animation
+            selectedCell.style.transform = "scale(1.1)";
+            setTimeout(() => {
+                selectedCell.style.transform = "";
+            }, 100);
             
             // Update the cell with the selected number
             selectedCell.textContent = number;
@@ -628,10 +907,15 @@
                     puzzlesSolved++;
                     scoreElement.textContent = score;
                     
-                    // Highlight all cells as correct
+                    // Success sound effect (optional)
+                    playSound('success');
+                    
+                    // Highlight all cells as correct with staggered animation
                     const cells = document.querySelectorAll(".sudoku-cell");
-                    cells.forEach(cell => {
-                        cell.classList.add("correct");
+                    cells.forEach((cell, index) => {
+                        setTimeout(() => {
+                            cell.classList.add("correct");
+                        }, index * 20);
                     });
                     
                     // Show message
@@ -642,9 +926,13 @@
                     setTimeout(() => {
                         currentPuzzleIndex++;
                         getNextPuzzle();
-                    }, 500);
+                    }, 700);
                 } else {
                     // Incorrect solution
+                    
+                    // Error sound effect (optional)
+                    playSound('error');
+                    
                     const cells = document.querySelectorAll(".sudoku-cell");
                     cells.forEach(cell => {
                         cell.classList.add("incorrect");
@@ -659,6 +947,53 @@
                         currentPuzzleIndex++;
                         getNextPuzzle();
                     }, 1000);
+                }
+            }
+            
+            // Optional: Auto-select next empty cell after input
+            if (gameActive) {
+                autoSelectNextEmptyCell(row, col);
+            }
+        }
+        
+        // Function to play sound effects (optional - can be removed if not wanted)
+        function playSound(type) {
+            // Only implement if you want sound effects
+            // This is just a placeholder function
+        }
+        
+        // Function to auto-select next empty cell
+        function autoSelectNextEmptyCell(currentRow, currentCol) {
+            // Find the next empty cell by scanning left to right, top to bottom
+            let foundNext = false;
+            let nextRow = currentRow;
+            let nextCol = currentCol + 1; // Start with the next column
+            
+            if (nextCol >= GRID_SIZE) {
+                nextCol = 0;
+                nextRow++;
+            }
+            
+            // Scan the grid starting from the next position
+            while (nextRow < GRID_SIZE && !foundNext) {
+                while (nextCol < GRID_SIZE && !foundNext) {
+                    if (currentGrid[nextRow][nextCol] === 0) {
+                        foundNext = true;
+                        break;
+                    }
+                    nextCol++;
+                }
+                if (!foundNext) {
+                    nextRow++;
+                    nextCol = 0;
+                }
+            }
+            
+            // If we found an empty cell, select it
+            if (foundNext) {
+                const nextCell = document.querySelector(`.sudoku-cell[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                if (nextCell) {
+                    selectCell(nextCell);
                 }
             }
         }
@@ -691,6 +1026,12 @@
         function resetPuzzle() {
             if (!gameActive) return;
             
+            // Add reset animation
+            sudokuGrid.style.opacity = "0.5";
+            setTimeout(() => {
+                sudokuGrid.style.opacity = "1";
+            }, 300);
+            
             // Reset all user input cells
             const cells = document.querySelectorAll(".sudoku-cell:not(.filled)");
             cells.forEach(cell => {
@@ -707,6 +1048,9 @@
                 selectedCell = null;
             }
             
+            // Clear highlighting
+            highlightRelatedCells(null);
+            
             // Clear message
             messageElement.textContent = "";
             messageElement.className = "";
@@ -715,6 +1059,12 @@
         // Function to update timer display
         function updateTimer() {
             timerElement.textContent = `Time: ${timeLeft}s`;
+            
+            // Add urgency when time is running low
+            if (timeLeft <= 10) {
+                timerElement.style.color = "#ff0000";
+                timerElement.style.animation = "pulse 1s infinite";
+            }
         }
         
         // Function to end the game
@@ -722,24 +1072,34 @@
             gameActive = false;
             clearInterval(timer);
             
-            // Update final score
-            document.getElementById("final-score-display").textContent = `Score: ${score}`;
-            
-            // Update share link
-            const gameLink = window.location.href;
-            const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
-            document.getElementById("share-link").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
-            
-            // Save today's play
-            saveToday(score);
-            
-            // Show game over screen
-            gamePlay.style.display = "none";
-            gameOver.style.display = "block";
-            
-            // Start countdown timer
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
+            // Add ending animation
+            gamePlay.style.opacity = "0.5";
+            setTimeout(() => {
+                // Update final score
+                document.getElementById("final-score-display").textContent = `Score: ${score}`;
+                
+                // Update share link
+                const gameLink = window.location.href;
+                const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
+                document.getElementById("share-link").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
+                
+                // Save today's play
+                saveToday(score);
+                
+                // Show game over screen
+                gamePlay.style.display = "none";
+                gameOver.style.display = "block";
+                gameOver.style.opacity = "0";
+                
+                setTimeout(() => {
+                    gameOver.style.transition = "opacity 0.5s ease";
+                    gameOver.style.opacity = "1";
+                }, 50);
+                
+                // Start countdown timer
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }, 500);
         }
         
         // Function to start the game
@@ -748,34 +1108,44 @@
                 return; // Don't allow starting if already played today
             }
             
-            // Reset game variables
-            currentPuzzleIndex = 0;
-            score = 0;
-            puzzlesSolved = 0;
-            timeLeft = GAME_TIME;
-            gameActive = true;
-            
-            // Update UI
-            scoreElement.textContent = score;
-            updateTimer();
-            
-            // Hide start screen, show game play
-            startScreen.style.display = "none";
-            gamePlay.style.display = "block";
-            gameOver.style.display = "none";
-            
-            // Get first puzzle
-            getNextPuzzle();
-            
-            // Start timer
-            timer = setInterval(() => {
-                timeLeft--;
+            // Add starting animation
+            startScreen.style.opacity = "0";
+            setTimeout(() => {
+                // Reset game variables
+                currentPuzzleIndex = 0;
+                score = 0;
+                puzzlesSolved = 0;
+                timeLeft = GAME_TIME;
+                gameActive = true;
+                
+                // Update UI
+                scoreElement.textContent = score;
                 updateTimer();
                 
-                if (timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
+                // Hide start screen, show game play
+                startScreen.style.display = "none";
+                gamePlay.style.display = "block";
+                gamePlay.style.opacity = "0";
+                gameOver.style.display = "none";
+                
+                setTimeout(() => {
+                    gamePlay.style.transition = "opacity 0.5s ease";
+                    gamePlay.style.opacity = "1";
+                    
+                    // Get first puzzle
+                    getNextPuzzle();
+                    
+                    // Start timer
+                    timer = setInterval(() => {
+                        timeLeft--;
+                        updateTimer();
+                        
+                        if (timeLeft <= 0) {
+                            endGame();
+                        }
+                    }, 1000);
+                }, 50);
+            }, 300);
         }
         
         // Function to initialize game
@@ -793,9 +1163,80 @@
                     const key = e.key;
                     if (key >= '1' && key <= '5') {
                         handleNumberInput(parseInt(key));
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        // Clear the cell on backspace or delete
+                        selectedCell.textContent = "";
+                        selectedCell.classList.remove("user-input");
+                        const row = parseInt(selectedCell.dataset.row);
+                        const col = parseInt(selectedCell.dataset.col);
+                        currentGrid[row][col] = 0;
+                    } else if (key === 'ArrowUp' || key === 'ArrowDown' || 
+                              key === 'ArrowLeft' || key === 'ArrowRight') {
+                        // Handle arrow key navigation
+                        navigateWithArrowKeys(key);
                     }
                 }
             });
+            
+            // Function to navigate with arrow keys
+            function navigateWithArrowKeys(direction) {
+                if (!selectedCell) return;
+                
+                const currentRow = parseInt(selectedCell.dataset.row);
+                const currentCol = parseInt(selectedCell.dataset.col);
+                let nextRow = currentRow;
+                let nextCol = currentCol;
+                
+                switch (direction) {
+                    case 'ArrowUp':
+                        nextRow = Math.max(0, currentRow - 1);
+                        break;
+                    case 'ArrowDown':
+                        nextRow = Math.min(GRID_SIZE - 1, currentRow + 1);
+                        break;
+                    case 'ArrowLeft':
+                        nextCol = Math.max(0, currentCol - 1);
+                        break;
+                    case 'ArrowRight':
+                        nextCol = Math.min(GRID_SIZE - 1, currentCol + 1);
+                        break;
+                }
+                
+                // Find and select the next cell if it's editable
+                const nextCell = document.querySelector(`.sudoku-cell[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                if (nextCell && !nextCell.classList.contains('filled')) {
+                    selectCell(nextCell);
+                } else if (nextCell) {
+                    // If we landed on a filled cell, continue in the same direction
+                    const deltaRow = nextRow - currentRow;
+                    const deltaCol = nextCol - currentCol;
+                    let foundEmptyCell = false;
+                    
+                    // Keep going in the same direction until we find an empty cell or hit the edge
+                    let searchRow = nextRow;
+                    let searchCol = nextCol;
+                    
+                    while (!foundEmptyCell) {
+                        searchRow += deltaRow;
+                        searchCol += deltaCol;
+                        
+                        // Check if we're still within bounds
+                        if (searchRow < 0 || searchRow >= GRID_SIZE || 
+                            searchCol < 0 || searchCol >= GRID_SIZE) {
+                            break;
+                        }
+                        
+                        const candidateCell = document.querySelector(
+                            `.sudoku-cell[data-row="${searchRow}"][data-col="${searchCol}"]`
+                        );
+                        
+                        if (candidateCell && !candidateCell.classList.contains('filled')) {
+                            selectCell(candidateCell);
+                            foundEmptyCell = true;
+                        }
+                    }
+                }
+            }
             
             // Check if the user has played today
             if (hasPlayedToday()) {
@@ -823,6 +1264,17 @@
                 startScreen.style.display = "block";
                 playedToday.style.display = "none";
             }
+            
+            // Add CSS animation for blinking cursor effect
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes pulse {
+                        0% { opacity: 1; }
+                        50% { opacity: 0.5; }
+                        100% { opacity: 1; }
+                    }
+                </style>
+            `);
         }
         
         // Initialize game on page load
