@@ -189,11 +189,11 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>SpeedSudoku 5x5</h1>
+        <h1>shortSudoku 5x5</h1>
         <div class="daily-date" id="daily-date"></div>
         
         <div class="start-screen" id="start-screen">
-            <p>solve the most 5×5 sudokus in 60 seconds</p>
+            <p>solve the most 5×5 sudokus in 90 seconds</p>
             <p>one game per day</p>
             <div class="instructions">
                 <p>Rules:</p>
@@ -201,7 +201,7 @@
                     <li>fill in the empty cells with numbers 1-5</li>
                     <li>each number can appear only once in each row, column, and block</li>
                     <li>each puzzle has 8 empty cells to fill</li>
-                    <li>solve as many as you can in 60 seconds</li>
+                    <li>solve as many as you can in 90 seconds</li>
                 </ul>
             </div>
             <button id="start-game" onclick="startGame()">Play</button>
@@ -219,7 +219,7 @@
         </div>
         
         <div class="game-play" id="game-play">
-            <div class="timer" id="timer">Time: 60s</div>
+            <div class="timer" id="timer">Time: 90s</div>
             
             <div class="score-display" style="margin: 10px 0;">
                 Score: <span id="score">0</span>
@@ -258,8 +258,8 @@
     
     <script>
         // Game settings
-        const GAME_TIME = 60; // Game time in seconds
-        const GRID_SIZE = 5;  // Changed to 5x5
+        const GAME_TIME = 90; // Changed from 60 to 90 seconds
+        const GRID_SIZE = 5;  // 5x5 grid
         const BOX_SIZE = Math.floor(Math.sqrt(GRID_SIZE));  // Calculate box size based on grid
         
         // Game variables
@@ -359,7 +359,7 @@
         // Function to check if the user has played today
         function hasPlayedToday() {
             try {
-                const playedDate = localStorage.getItem('speedSudokuLastPlayedDate');
+                const playedDate = localStorage.getItem('shortSudokuLastPlayedDate');
                 return playedDate === today;
             } catch (error) {
                 console.error("Local storage error:", error);
@@ -370,8 +370,8 @@
         // Function to save today's play
         function saveToday(finalScore) {
             try {
-                localStorage.setItem('speedSudokuLastPlayedDate', today);
-                localStorage.setItem('speedSudokuLastScore', finalScore);
+                localStorage.setItem('shortSudokuLastPlayedDate', today);
+                localStorage.setItem('shortSudokuLastScore', finalScore);
             } catch (error) {
                 console.error("Local storage error:", error);
             }
@@ -727,7 +727,7 @@
             
             // Update share link
             const gameLink = window.location.href;
-            const shareMessage = `SpeedSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
+            const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
             document.getElementById("share-link").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
             
             // Save today's play
@@ -800,12 +800,12 @@
             // Check if the user has played today
             if (hasPlayedToday()) {
                 try {
-                    const lastScore = localStorage.getItem('speedSudokuLastScore') || "0";
+                    const lastScore = localStorage.getItem('shortSudokuLastScore') || "0";
                     todayScoreElement.textContent = lastScore;
                     
                     // Update share link
                     const gameLink = window.location.href;
-                    const shareMessage = `SpeedSudoku ${formatDateForDisplay(today)}: ${lastScore} points. ${gameLink}`;
+                    const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${lastScore} points. ${gameLink}`;
                     document.getElementById("share-link-played").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
                 } catch (error) {
                     console.error("Local storage error:", error);
