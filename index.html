@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shortSudoku 5x5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        .game-container {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            margin: 20px auto;
+            max-width: 350px;
+            background-color: #555;
+            padding: 2px;
+            border-radius: 5px;
+        }
+        .sudoku-cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #4a4a4a;
+            color: #f0f0f0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sudoku-cell.filled {
+            background-color: #222222;
+            color: #ffffff;
+            border: 1px solid #555555;
+        }
+        .sudoku-cell.highlighted {
+            background-color: #3d3d3d;
+        }
+        .sudoku-cell.highlighted.filled {
+            background-color: #151515;
+        }
+        .sudoku-cell.selected {
+            background-color: #2196f3;
+            color: white;
+        }
+        .sudoku-cell.correct {
+            background-color: #4caf50;
+            color: white;
+        }
+        .sudoku-cell.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+        .sudoku-cell.user-input {
+            background-color: #3a3a3a;
+            color: #ffeb3b;
+            border: 1px dashed #888888;
+        }
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 350px;
+        }
+        .number-btn {
+            padding: 10px 0;
+            background-color: #3d3d3d;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .number-btn:hover {
+            background-color: #4a4a4a;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0d8bf2;
+        }
+        .buttons {
+            margin: 20px 0;
+        }
+        #message {
+            margin: 20px 0;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        #message.correct {
+            color: #4caf50;
+        }
+        #message.incorrect {
+            color: #f44336;
+        }
+        .score {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .timer {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #f44336;
+        }
+        .game-over {
+            display: none;
+            font-size: 1.5em;
+            color: #e0e0e0;
+            margin: 20px 0;
+        }
+        .final-score {
+            font-size: 1.5em;
+            color: #4caf50;
+            margin: 20px 0;
+        }
+        #start-game {
+            background-color: #4caf50;
+            font-size: 1.2em;
+            padding: 15px 30px;
+        }
+        #start-game:hover {
+            background-color: #3d9a40;
+        }
+        .game-play {
+            display: none;
+        }
+        .start-screen {
+            padding: 20px;
+        }
+        .played-today {
+            display: none;
+            padding: 20px;
+        }
+        .countdown {
+            font-size: 1.2em;
+            color: #f44336;
+            margin: 20px 0;
+        }
+        .daily-date {
+            font-size: 1.2em;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+        }
+        .score-display {
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+        .instructions {
+            margin: 20px 0;
+            font-size: 1.1em;
+            text-align: left;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>SpeedSudoku 5x5</h1>
+        <div class="daily-date" id="daily-date"></div>
+        
+        <div class="start-screen" id="start-screen">
+            <p>solve the most 5×5 sudokus in 60 seconds</p>
+            <p>one game per day</p>
+            <div class="instructions">
+                <p>Rules:</p>
+                <ul style="text-align: left;">
+                    <li>fill in the empty cells with numbers 1-5</li>
+                    <li>each number can appear only once in each row, column, and block</li>
+                    <li>each puzzle has 8 empty cells to fill</li>
+                    <li>solve as many as you can in 60 seconds</li>
+                </ul>
+            </div>
+            <button id="start-game" onclick="startGame()">Play</button>
+        </div>
+        
+        <div class="played-today" id="played-today">
+            <p>Already played today.</p>
+            <div class="final-score">Score: <span id="today-score">0</span></div>
+            <div class="countdown" id="countdown"></div>
+            <div class="share-score" style="margin: 20px 0;">
+                <a id="share-link-played" href="#" target="_blank" style="display: inline-block; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
+                    <span style="font-size: 1.1em;">Share</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="game-play" id="game-play">
+            <div class="timer" id="timer">Time: 60s</div>
+            
+            <div class="score-display" style="margin: 10px 0;">
+                Score: <span id="score">0</span>
+            </div>
+            
+            <div class="sudoku-grid" id="sudoku-grid">
+                <!-- Sudoku cells will be generated here -->
+            </div>
+            
+            <div class="number-pad" id="number-pad">
+                <button class="number-btn" data-value="1" onclick="handleNumberInput(1)">1</button>
+                <button class="number-btn" data-value="2" onclick="handleNumberInput(2)">2</button>
+                <button class="number-btn" data-value="3" onclick="handleNumberInput(3)">3</button>
+                <button class="number-btn" data-value="4" onclick="handleNumberInput(4)">4</button>
+                <button class="number-btn" data-value="5" onclick="handleNumberInput(5)">5</button>
+            </div>
+            
+            <div class="buttons" style="margin-top: 15px;">
+                <button id="reset-btn" style="background-color: #ff9800;" onclick="resetPuzzle()">Reset Puzzle</button>
+            </div>
+            
+            <div id="message"></div>
+        </div>
+        
+        <div class="game-over" id="game-over">
+            <p>Game Over</p>
+            <div class="final-score" id="final-score-display"></div>
+            <div class="share-score" style="margin: 20px 0;">
+                <a id="share-link" href="#" target="_blank" style="display: inline-block; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
+                    <span style="font-size: 1.1em;">Share</span>
+                </a>
+            </div>
+            <div class="countdown" id="countdown-end"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Game settings
+        const GAME_TIME = 60; // Game time in seconds
+        const GRID_SIZE = 5;  // Changed to 5x5
+        const BOX_SIZE = Math.floor(Math.sqrt(GRID_SIZE));  // Calculate box size based on grid
+        
+        // Game variables
+        let dailySeeds = [];
+        let currentPuzzleIndex = 0;
+        let currentGrid = [];
+        let solution = [];
+        let selectedCell = null;
+        let score = 0;
+        let puzzlesSolved = 0;
+        let timeLeft = GAME_TIME;
+        let timer;
+        let gameActive = false;
+        let today;
+        
+        // Elements
+        const startScreen = document.getElementById("start-screen");
+        const playedToday = document.getElementById("played-today");
+        const gamePlay = document.getElementById("game-play");
+        const gameOver = document.getElementById("game-over");
+        const sudokuGrid = document.getElementById("sudoku-grid");
+        const messageElement = document.getElementById("message");
+        const scoreElement = document.getElementById("score");
+        const timerElement = document.getElementById("timer");
+        const countdownElement = document.getElementById("countdown");
+        const countdownEndElement = document.getElementById("countdown-end");
+        const todayScoreElement = document.getElementById("today-score");
+        const dailyDateElement = document.getElementById("daily-date");
+        
+        // Function to get current date string (YYYY-MM-DD format in Central Time)
+        function getCurrentDateCT() {
+            const now = new Date();
+            // Convert to Central Time (CT)
+            const centralTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+            return centralTime.toISOString().split('T')[0];
+        }
+        
+        // Function to format current date for display
+        function formatDateForDisplay(dateStr) {
+            const date = new Date(dateStr);
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Function to get time until midnight CT
+        function getTimeUntilMidnightCT() {
+            const now = new Date();
+            const centralTimeNow = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+            
+            // Set the next midnight in CT
+            const midnight = new Date(centralTimeNow);
+            midnight.setHours(24, 0, 0, 0);
+            
+            // Get milliseconds until midnight
+            return midnight - centralTimeNow;
+        }
+        
+        // Function to update countdown timer
+        function updateCountdown() {
+            const msLeft = getTimeUntilMidnightCT();
+            const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+            
+            const countdownText = `Next: ${hoursLeft}h ${minutesLeft}m`;
+            countdownElement.textContent = countdownText;
+            countdownEndElement.textContent = countdownText;
+            
+            // Check if we've passed midnight and should refresh
+            if (msLeft <= 0) {
+                window.location.reload();
+            }
+        }
+        
+        // Function to seed the random number generator
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+        
+        // Function to get daily seeds using seeded random
+        function getDailySeeds(dateStr) {
+            // Create a seed from the date string
+            let seed = 0;
+            for (let i = 0; i < dateStr.length; i++) {
+                seed += dateStr.charCodeAt(i);
+            }
+            
+            // Generate 100 seeds for puzzles
+            const seeds = [];
+            for (let i = 0; i < 100; i++) {
+                seeds.push(seed + i * 100);
+            }
+            
+            return seeds;
+        }
+        
+        // Function to check if the user has played today
+        function hasPlayedToday() {
+            try {
+                const playedDate = localStorage.getItem('speedSudokuLastPlayedDate');
+                return playedDate === today;
+            } catch (error) {
+                console.error("Local storage error:", error);
+                return false; // If there's an error, allow play
+            }
+        }
+        
+        // Function to save today's play
+        function saveToday(finalScore) {
+            try {
+                localStorage.setItem('speedSudokuLastPlayedDate', today);
+                localStorage.setItem('speedSudokuLastScore', finalScore);
+            } catch (error) {
+                console.error("Local storage error:", error);
+            }
+        }
+        
+        // Function to generate a valid Sudoku grid
+        function generateSudokuGrid(seed) {
+            // Initialize empty grid
+            const grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+            
+            // Fill diagonal boxes first (they are independent of each other)
+            fillDiagonalBoxes(grid, seed);
+            
+            // Solve the rest of the grid
+            solveSudoku(grid);
+            
+            // Make a copy of the complete solution
+            const fullSolution = grid.map(row => [...row]);
+            
+            // Remove exactly 8 numbers to create the puzzle
+            const puzzle = createPuzzle(grid, seed);
+            
+            return { puzzle, solution: fullSolution };
+        }
+        
+        // Function to fill diagonal boxes
+        function fillDiagonalBoxes(grid, seed) {
+            const maxDiagonal = Math.floor(GRID_SIZE / BOX_SIZE);
+            
+            for (let diag = 0; diag < maxDiagonal; diag++) {
+                fillBox(grid, diag * BOX_SIZE, diag * BOX_SIZE, seed + diag);
+            }
+        }
+        
+        // Function to fill a box with numbers 1-5
+        function fillBox(grid, startRow, startCol, seed) {
+            const numbers = Array.from({length: GRID_SIZE}, (_, i) => i + 1);
+            
+            // Shuffle numbers using seeded random
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom(seed + i) * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+            
+            let index = 0;
+            for (let row = 0; row < BOX_SIZE; row++) {
+                for (let col = 0; col < BOX_SIZE; col++) {
+                    if (startRow + row < GRID_SIZE && startCol + col < GRID_SIZE) {
+                        grid[startRow + row][startCol + col] = numbers[index++];
+                    }
+                }
+            }
+        }
+        
+        // Function to check if a number is valid in a given position
+        function isValid(grid, row, col, num) {
+            // Check row
+            for (let x = 0; x < GRID_SIZE; x++) {
+                if (grid[row][x] === num) {
+                    return false;
+                }
+            }
+            
+            // Check column
+            for (let x = 0; x < GRID_SIZE; x++) {
+                if (grid[x][col] === num) {
+                    return false;
+                }
+            }
+            
+            // Check box
+            const startRow = Math.floor(row / BOX_SIZE) * BOX_SIZE;
+            const startCol = Math.floor(col / BOX_SIZE) * BOX_SIZE;
+            
+            for (let r = 0; r < BOX_SIZE; r++) {
+                for (let c = 0; c < BOX_SIZE; c++) {
+                    if (startRow + r < GRID_SIZE && startCol + c < GRID_SIZE) {
+                        if (grid[startRow + r][startCol + c] === num) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+        
+        // Function to solve the Sudoku grid using backtracking
+        function solveSudoku(grid) {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    // Skip filled cells
+                    if (grid[row][col] !== 0) {
+                        continue;
+                    }
+                    
+                    // Try each number 1-5
+                    for (let num = 1; num <= GRID_SIZE; num++) {
+                        if (isValid(grid, row, col, num)) {
+                            grid[row][col] = num;
+                            
+                            // Recursively solve the rest
+                            if (solveSudoku(grid)) {
+                                return true;
+                            }
+                            
+                            // If we get here, the current solution doesn't work
+                            grid[row][col] = 0;
+                        }
+                    }
+                    
+                    // No valid number found
+                    return false;
+                }
+            }
+            
+            // Grid is filled
+            return true;
+        }
+        
+        // Function to create a puzzle by removing exactly 8 numbers
+        function createPuzzle(grid, seed) {
+            const puzzle = grid.map(row => [...row]);
+            const positions = [];
+            
+            // Create list of all positions
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    positions.push({ row, col });
+                }
+            }
+            
+            // Shuffle positions using seeded random
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom(seed + i) * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            
+            // Remove exactly 8 numbers (for 5x5 grid)
+            for (let i = 0; i < 8; i++) {
+                const { row, col } = positions[i];
+                puzzle[row][col] = 0;
+            }
+            
+            return puzzle;
+        }
+        
+        // Function to create the Sudoku grid UI
+        function createSudokuGrid(puzzle) {
+            sudokuGrid.innerHTML = "";
+            
+            // Create cells for each position in the grid
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const cell = document.createElement("div");
+                    cell.className = "sudoku-cell";
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    // Add box highlighting
+                    const boxRow = Math.floor(row / BOX_SIZE);
+                    const boxCol = Math.floor(col / BOX_SIZE);
+                    if ((boxRow + boxCol) % 2 === 1) {
+                        cell.classList.add("highlighted");
+                    }
+                    
+                    // Fill in the value if it's not empty
+                    if (puzzle[row][col] !== 0) {
+                        cell.textContent = puzzle[row][col];
+                        cell.classList.add("filled");
+                    } else {
+                        // Add click event listener for empty cells
+                        cell.addEventListener("click", function() {
+                            selectCell(this);
+                        });
+                    }
+                    
+                    sudokuGrid.appendChild(cell);
+                }
+            }
+        }
+        
+        // Function to select a cell
+        function selectCell(cell) {
+            if (!gameActive) return;
+            
+            // Remove selected class from previously selected cell
+            if (selectedCell) {
+                selectedCell.classList.remove("selected");
+            }
+            
+            // Add selected class to the clicked cell
+            cell.classList.add("selected");
+            selectedCell = cell;
+        }
+        
+        // Function to get the next puzzle
+        function getNextPuzzle() {
+            if (currentPuzzleIndex >= dailySeeds.length) {
+                currentPuzzleIndex = 0; // Wrap around if we've gone through all seeds
+            }
+            
+            const seed = dailySeeds[currentPuzzleIndex];
+            const { puzzle, solution: fullSolution } = generateSudokuGrid(seed);
+            
+            // Verify the puzzle has exactly 8 empty cells
+            let emptyCount = 0;
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    if (puzzle[row][col] === 0) {
+                        emptyCount++;
+                    }
+                }
+            }
+            
+            // If not exactly 8 empty cells, regenerate the puzzle
+            if (emptyCount !== 8) {
+                console.error("Puzzle has " + emptyCount + " empty cells instead of 8, regenerating...");
+                currentPuzzleIndex++; // Try next seed
+                return getNextPuzzle();
+            }
+            
+            currentGrid = puzzle;
+            solution = fullSolution;
+            
+            // Create Sudoku grid UI
+            createSudokuGrid(currentGrid);
+            
+            // Update UI
+            messageElement.textContent = "";
+            messageElement.className = "";
+            
+            // Reset selected cell
+            selectedCell = null;
+        }
+        
+        // Function to handle number input
+        function handleNumberInput(number) {
+            if (!gameActive || !selectedCell) return;
+            
+            const row = parseInt(selectedCell.dataset.row);
+            const col = parseInt(selectedCell.dataset.col);
+            
+            // Update the cell with the selected number
+            selectedCell.textContent = number;
+            selectedCell.classList.add("user-input");
+            currentGrid[row][col] = number;
+            
+            // Check if the puzzle is complete
+            if (isPuzzleComplete()) {
+                if (isPuzzleCorrect()) {
+                    // Correct solution
+                    score += 100;
+                    puzzlesSolved++;
+                    scoreElement.textContent = score;
+                    
+                    // Highlight all cells as correct
+                    const cells = document.querySelectorAll(".sudoku-cell");
+                    cells.forEach(cell => {
+                        cell.classList.add("correct");
+                    });
+                    
+                    // Show message
+                    messageElement.textContent = "Correct!";
+                    messageElement.className = "correct";
+                    
+                    // Move to next puzzle after a short delay
+                    setTimeout(() => {
+                        currentPuzzleIndex++;
+                        getNextPuzzle();
+                    }, 500);
+                } else {
+                    // Incorrect solution
+                    const cells = document.querySelectorAll(".sudoku-cell");
+                    cells.forEach(cell => {
+                        cell.classList.add("incorrect");
+                    });
+                    
+                    // Show message
+                    messageElement.textContent = "Incorrect!";
+                    messageElement.className = "incorrect";
+                    
+                    // Move to next puzzle after a short delay
+                    setTimeout(() => {
+                        currentPuzzleIndex++;
+                        getNextPuzzle();
+                    }, 1000);
+                }
+            }
+        }
+        
+        // Function to check if the puzzle is complete
+        function isPuzzleComplete() {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    if (currentGrid[row][col] === 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        // Function to check if the puzzle is correct
+        function isPuzzleCorrect() {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    if (currentGrid[row][col] !== solution[row][col]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        // Function to reset the current puzzle
+        function resetPuzzle() {
+            if (!gameActive) return;
+            
+            // Reset all user input cells
+            const cells = document.querySelectorAll(".sudoku-cell:not(.filled)");
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove("user-input");
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                currentGrid[row][col] = 0;
+            });
+            
+            // Clear selected cell
+            if (selectedCell) {
+                selectedCell.classList.remove("selected");
+                selectedCell = null;
+            }
+            
+            // Clear message
+            messageElement.textContent = "";
+            messageElement.className = "";
+        }
+        
+        // Function to update timer display
+        function updateTimer() {
+            timerElement.textContent = `Time: ${timeLeft}s`;
+        }
+        
+        // Function to end the game
+        function endGame() {
+            gameActive = false;
+            clearInterval(timer);
+            
+            // Update final score
+            document.getElementById("final-score-display").textContent = `Score: ${score}`;
+            
+            // Update share link
+            const gameLink = window.location.href;
+            const shareMessage = `SpeedSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
+            document.getElementById("share-link").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
+            
+            // Save today's play
+            saveToday(score);
+            
+            // Show game over screen
+            gamePlay.style.display = "none";
+            gameOver.style.display = "block";
+            
+            // Start countdown timer
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+        
+        // Function to start the game
+        function startGame() {
+            if (hasPlayedToday()) {
+                return; // Don't allow starting if already played today
+            }
+            
+            // Reset game variables
+            currentPuzzleIndex = 0;
+            score = 0;
+            puzzlesSolved = 0;
+            timeLeft = GAME_TIME;
+            gameActive = true;
+            
+            // Update UI
+            scoreElement.textContent = score;
+            updateTimer();
+            
+            // Hide start screen, show game play
+            startScreen.style.display = "none";
+            gamePlay.style.display = "block";
+            gameOver.style.display = "none";
+            
+            // Get first puzzle
+            getNextPuzzle();
+            
+            // Start timer
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // Function to initialize game
+        function initGame() {
+            // Get today's date string in Central Time
+            today = getCurrentDateCT();
+            dailyDateElement.textContent = formatDateForDisplay(today);
+            
+            // Get daily seeds
+            dailySeeds = getDailySeeds(today);
+            
+            // Add keyboard support for number input
+            document.addEventListener("keydown", (e) => {
+                if (gameActive && selectedCell) {
+                    const key = e.key;
+                    if (key >= '1' && key <= '5') {
+                        handleNumberInput(parseInt(key));
+                    }
+                }
+            });
+            
+            // Check if the user has played today
+            if (hasPlayedToday()) {
+                try {
+                    const lastScore = localStorage.getItem('speedSudokuLastScore') || "0";
+                    todayScoreElement.textContent = lastScore;
+                    
+                    // Update share link
+                    const gameLink = window.location.href;
+                    const shareMessage = `SpeedSudoku ${formatDateForDisplay(today)}: ${lastScore} points. ${gameLink}`;
+                    document.getElementById("share-link-played").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
+                } catch (error) {
+                    console.error("Local storage error:", error);
+                }
+                
+                // Show played today screen
+                startScreen.style.display = "none";
+                playedToday.style.display = "block";
+                
+                // Start countdown timer
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            } else {
+                // Show start screen
+                startScreen.style.display = "block";
+                playedToday.style.display = "none";
+            }
+        }
+        
+        // Initialize game on page load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
