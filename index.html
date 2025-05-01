@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sdku</title>
+    <!-- Google tag (gtag.js) --> 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P08B9Y98RE"></script> 
+    <script> 
+        window.dataLayer = window.dataLayer || []; 
+        function gtag(){dataLayer.push(arguments);} 
+        gtag('js', new Date()); 
+        gtag('config', 'G-P08B9Y98RE'); 
+    </script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -907,6 +915,13 @@
                     puzzlesSolved++;
                     scoreElement.textContent = score;
                     
+                    // Track puzzle completion in Google Analytics
+                    gtag('event', 'puzzle_solved', {
+                        'event_category': 'gameplay',
+                        'event_label': currentPuzzleIndex,
+                        'value': puzzlesSolved
+                    });
+                    
                     // Success sound effect (optional)
                     playSound('success');
                     
@@ -929,6 +944,12 @@
                     }, 700);
                 } else {
                     // Incorrect solution
+                    
+                    // Track incorrect solution in Google Analytics
+                    gtag('event', 'puzzle_incorrect', {
+                        'event_category': 'gameplay',
+                        'event_label': currentPuzzleIndex
+                    });
                     
                     // Error sound effect (optional)
                     playSound('error');
@@ -1072,6 +1093,14 @@
             gameActive = false;
             clearInterval(timer);
             
+            // Track game completion in Google Analytics
+            gtag('event', 'game_complete', {
+                'event_category': 'gameplay',
+                'event_label': getCurrentDateCT(),
+                'value': score,
+                'puzzles_solved': puzzlesSolved
+            });
+            
             // Add ending animation
             gamePlay.style.opacity = "0.5";
             setTimeout(() => {
@@ -1107,6 +1136,12 @@
             if (hasPlayedToday()) {
                 return; // Don't allow starting if already played today
             }
+            
+            // Track game start in Google Analytics
+            gtag('event', 'game_start', {
+                'event_category': 'gameplay',
+                'event_label': getCurrentDateCT()
+            });
             
             // Add starting animation
             startScreen.style.opacity = "0";
