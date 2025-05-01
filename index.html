@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>shortSudoku 5x5</title>
+    <title>sdku</title>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -410,11 +410,11 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>shortSudoku 5x5</h1>
+        <h1>sdku</h1>
         <div class="daily-date" id="daily-date"></div>
         
         <div class="start-screen" id="start-screen">
-            <p>solve the most 5×5 sudokus in 90 seconds</p>
+            <p>solve the most sudokus in 90 seconds</p>
             <p>one game per day</p>
             <div class="instructions">
                 <p>Rules:</p>
@@ -580,7 +580,7 @@
         // Function to check if the user has played today
         function hasPlayedToday() {
             try {
-                const playedDate = localStorage.getItem('shortSudokuLastPlayedDate');
+                const playedDate = localStorage.getItem('sdkuLastPlayedDate');
                 return playedDate === today;
             } catch (error) {
                 console.error("Local storage error:", error);
@@ -591,8 +591,8 @@
         // Function to save today's play
         function saveToday(finalScore) {
             try {
-                localStorage.setItem('shortSudokuLastPlayedDate', today);
-                localStorage.setItem('shortSudokuLastScore', finalScore);
+                localStorage.setItem('sdkuLastPlayedDate', today);
+                localStorage.setItem('sdkuLastScore', finalScore);
             } catch (error) {
                 console.error("Local storage error:", error);
             }
@@ -1080,7 +1080,7 @@
                 
                 // Update share link
                 const gameLink = window.location.href;
-                const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
+                const shareMessage = `sdku ${formatDateForDisplay(today)}: ${score} points. ${gameLink}`;
                 document.getElementById("share-link").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
                 
                 // Save today's play
@@ -1241,12 +1241,12 @@
             // Check if the user has played today
             if (hasPlayedToday()) {
                 try {
-                    const lastScore = localStorage.getItem('shortSudokuLastScore') || "0";
+                    const lastScore = localStorage.getItem('sdkuLastScore') || "0";
                     todayScoreElement.textContent = lastScore;
                     
                     // Update share link
                     const gameLink = window.location.href;
-                    const shareMessage = `shortSudoku ${formatDateForDisplay(today)}: ${lastScore} points. ${gameLink}`;
+                    const shareMessage = `sdku ${formatDateForDisplay(today)}: ${lastScore} points. ${gameLink}`;
                     document.getElementById("share-link-played").href = `sms:?&body=${encodeURIComponent(shareMessage)}`;
                 } catch (error) {
                     console.error("Local storage error:", error);
